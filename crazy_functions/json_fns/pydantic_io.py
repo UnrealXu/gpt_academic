@@ -24,8 +24,8 @@ class Actor(BaseModel):
     film_names: List[str] = Field(description="list of names of films they starred in")
 """
 
-import json, re, logging
-
+import json, re
+from loguru import logger as logging
 
 PYDANTIC_FORMAT_INSTRUCTIONS = """The output should be formatted as a JSON instance that conforms to the JSON schema below.
 
@@ -62,8 +62,8 @@ class GptJsonIO():
         if "type" in reduced_schema:
             del reduced_schema["type"]
         # Ensure json in context is well-formed with double quotes.
+        schema_str = json.dumps(reduced_schema)
         if self.example_instruction:
-            schema_str = json.dumps(reduced_schema)
             return PYDANTIC_FORMAT_INSTRUCTIONS.format(schema=schema_str)
         else:
             return PYDANTIC_FORMAT_INSTRUCTIONS_SIMPLE.format(schema=schema_str)
@@ -89,7 +89,7 @@ class GptJsonIO():
                  error + "\n\n" + \
                 "Now, fix this json string. \n\n"
         return prompt
-    
+
     def generate_output_auto_repair(self, response, gpt_gen_fn):
         """
         response: string containing canidate json
@@ -102,10 +102,9 @@ class GptJsonIO():
                 logging.info(f'Repairing json：{response}')
                 repair_prompt = self.generate_repair_prompt(broken_json = response, error=repr(e))
                 result = self.generate_output(gpt_gen_fn(repair_prompt, self.format_instructions))
-                logging.info('Repaire json success.')
+                logging.info('Repair json success.')
             except Exception as e:
                 # 没辙了，放弃治疗
-                logging.info('Repaire json fail.')
+                logging.info('Repair json fail.')
                 raise JsonStringError('Cannot repair json.', str(e))
         return result
-

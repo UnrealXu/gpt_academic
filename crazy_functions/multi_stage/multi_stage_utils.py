@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List
-from toolbox import update_ui_lastest_msg, disable_auto_promotion
+from toolbox import update_ui_latest_msg, disable_auto_promotion
 from toolbox import CatchException, update_ui, get_conf, select_api_key, get_log_folder
 from request_llms.bridge_all import predict_no_ui_long_connection
 from crazy_functions.json_fns.pydantic_io import GptJsonIO, JsonStringError
@@ -40,7 +40,7 @@ class GptAcademicState():
 
 class GptAcademicGameBaseState():
     """
-    1. first init: __init__ -> 
+    1. first init: __init__ ->
     """
     def init_game(self, chatbot, lock_plugin):
         self.plugin_name = None
@@ -53,7 +53,7 @@ class GptAcademicGameBaseState():
             raise ValueError("callback_fn is None")
         chatbot._cookies['lock_plugin'] = self.callback_fn
         self.dump_state(chatbot)
-        
+
     def get_plugin_name(self):
         if self.plugin_name is None:
             raise ValueError("plugin_name is None")
@@ -71,7 +71,7 @@ class GptAcademicGameBaseState():
         state = chatbot._cookies.get(f'plugin_state/{plugin_name}', None)
         if state is not None:
             state = pickle.loads(state)
-        else: 
+        else:
             state = cls()
             state.init_game(chatbot, lock_plugin)
         state.plugin_name = plugin_name
@@ -79,7 +79,7 @@ class GptAcademicGameBaseState():
         state.chatbot = chatbot
         state.callback_fn = callback_fn
         return state
-    
+
     def continue_game(self, prompt, chatbot, history):
         # 游戏主体
         yield from self.step(prompt, chatbot, history)
